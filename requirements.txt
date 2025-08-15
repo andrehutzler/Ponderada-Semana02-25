@@ -1,0 +1,5 @@
+tensorflow==2.16.*
+tensorflow-text==2.16.*
+tensorflow-datasets
+matplotlib
+numpy
