@@ -183,7 +183,7 @@ O notebook usa **tokenizers prontos** (PT e EN) publicados como **SavedModel**. 
     ```
 
     ```bash
-    # (opcional) instalação local rápida
+    # instalação local rápida
     pip install "tensorflow==2.16.*" "tensorflow-text==2.16.*" tensorflow-datasets matplotlib numpy
     ```
 
@@ -209,8 +209,55 @@ O notebook usa **tokenizers prontos** (PT e EN) publicados como **SavedModel**. 
 - **`tensorflow-text` incompatível:** use a **mesma versão** do TensorFlow.
 
     ```bash
-    # (opcional) verificar GPU no ambiente
+    # verificar GPU no ambiente
     nvidia-smi || echo "Sem GPU NVIDIA disponível"
     ```
 
 **Por que importa?** Esses passos resolvem os erros mais comuns e garantem reprodutibilidade.
+
+---
+
+## 6) CPU vs GPU (Não consegui rodar)
+
+### Como reproduzir
+- **CPU**: antes de importar o TensorFlow no notebook:
+    ```python
+    import os
+    os.environ["CUDA_VISIBLE_DEVICES"] = "-1"  # desativa GPU
+    import tensorflow as tf
+    ```
+- **GPU (Colab)**: ative GPU no ambiente (`Runtime → Change runtime type → GPU`) e rode normalmente.
+- (Opcional) use o callback `TimeHistory` (seção 3.6) para medir tempo por época.
+
+**Tabela**
+
+| Item                     | CPU (ex.) | GPU (ex.) |
+|--------------------------|-----------|-----------|
+| Tempo/época (média)      | ...       | ...       |
+| Tempo total              | ...       | ...       |
+| Loss final (train/val)   | ... / ... | ... / ... |
+
+*Tendência:* GPU costuma ser várias vezes mais rápida, dependendo do tamanho do modelo/lote.
+
+---
+
+## 7) Percepções pessoais (prós e desafios)
+
+**Prós**
+- Keras organiza bem as partes do Transformer.
+- `tf.data` simplifica desempenho com cache/shuffle/prefetch.
+- Separação Encoder/Decoder/Attention ajuda a entender a arquitetura.
+
+**Desafios**
+- Compatibilidade de versões (`tensorflow` / `tensorflow-text`).
+- Treino pode ser lento sem GPU.
+- Ajustes de hiperparâmetros impactam muito a qualidade.
+
+---
+
+## 8) Próximos passos
+- Usar **mixed precision** em GPU para acelerar.
+- Treinar mais épocas/dados e medir **BLEU**.
+- Testar **KerasNLP** ou tokenizadores próprios (SentencePiece).
+- Adicionar **label smoothing** e **warmup schedule** do paper original.
+
