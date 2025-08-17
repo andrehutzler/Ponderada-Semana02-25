@@ -261,3 +261,28 @@ O notebook usa **tokenizers prontos** (PT e EN) publicados como **SavedModel**. 
 - Testar **KerasNLP** ou tokenizadores próprios (SentencePiece).
 - Adicionar **label smoothing** e **warmup schedule** do paper original.
 
+---
+
+## 9) Minha experiência nesta atividade
+
+**Resumo:** Não consegui rodar o notebook de ponta a ponta por limitações técnicas (download do tokenizer e compatibilidade de versões), mas **estudei o tutorial oficial**, revisei o código e documentei o fluxo completo. Abaixo, o que tentei e o que aprendi.
+
+### O que eu tentei
+- Baixar e carregar os tokenizers `ted_hrlr_translate_pt_en_converter` (SavedModel) para PT/EN.
+- Carregar com `tf.saved_model.load(...)` após a extração.
+- Ajustar compatibilidade instalando `tensorflow-text` com a **mesma versão** do `tensorflow`.
+- Validar o pipeline com `tf.data` (map → cache → shuffle → padded_batch → prefetch).
+
+### O que aprendi (mesmo sem executar tudo)
+- **TFDS + tf.data:** como montar um pipeline eficiente e batelado, e por que o `padded_batch` é necessário em NLP.
+- **Tokenização via SavedModel:** a importância de extrair corretamente e **apontar para a pasta que contém `saved_model.pb`** (erros comuns: 403 no download, caminho errado após extração).
+- **Arquitetura do Transformer:** encoder/decoder, **self-attention global** (encoder), **self-attention causal** (decoder), **cross-attention**, positional encoding e residual + layer norm.
+- **Treinamento:** perda com máscara para ignorar padding (Sparse Categorical CE `from_logits=True`), ideia de **label smoothing** e **scheduler** de learning rate do paper.
+- **Build antes do summary:** por ser `Model` subclassed, precisa de uma passada “dummy” para `model.summary()`.
+- **CPU vs GPU:** conceitualmente, GPU reduz muito o tempo por época; CPU serve para testar pipeline e hiperparâmetros menores.
+
+### Principais obstáculos (e causas prováveis)
+- **403/404 ao baixar os tokenizers:** ambiente bloqueando `storage.googleapis.com` ou link `.tgz` instável.
+- **`SavedModel` não encontrado:** pasta errada após a extração (underscores, níveis de diretório, etc.).
+- **Incompatibilidade de versões:** `tensorflow-text` diferente do `tensorflow`.
+- **Tempo de treino elevado em CPU:** hiperparâmetros grandes e dataset completo.
